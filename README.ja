@@ -1,0 +1,44 @@
+=begin
+
+= rbphoto - Ruby Web Photo Database
+
+Copyright (C) 2002 Taku YASUI <tach@users.sourceforge.jp>,
+All Rights Reserved.
+
+This software is distributed under the terms of the GNU General Public
+License. See COPYING for additional information.
+
+rbphoto は，Web 上で写真を公開・管理するためのソフトウエア群です．
+以下のような特徴があります．
+
+  * Web インターフェース (rbphoto.rbx) では，写真を特定のディレクトリに
+    置くだけで，自動的にサムネイルを作成し，HTML で表示します．
+  * ファイル名に撮影時刻などの情報を入れることにより，ファイルだけダウン
+    ロードした場合でも，誰がいつ撮影したものかわかります．
+
+= インストール・設定
+
+インストーラは用意しておりません．rbphoto.rbx を CGI を置くディレクトリに
+コピーしてください．そのあと，rbphoto.rbx の先頭にある変数を設定して
+ください．
+
+= つかいかた
+
+rbphoto.rbx で設定した PHOTODIR ディレクトリのしたに，ディレクトリを掘っ
+て，その中に画像 (.jpg ファイル) を置きます．
+
+そのあとで，rbphoto.rbx?ディレクトリ名 という URL にアクセスすると，サム
+ネイルが存在しない場合は作成し，画像リストを表示します．
+
+= 制限事項
+
+  * スペース（空白）の入ったファイル名・ディレクトリ名は扱えません．
+
+= バグ報告・サポートなど
+
+SourceForge.jp のバグ報告・サポート要求をご利用ください．
+
+バグ報告: https://sourceforge.jp/tracker/index.php?func=add&group_id=206&atid=870
+サポート: https://sourceforge.jp/tracker/index.php?func=add&group_id=206&atid=871
+
+=end
