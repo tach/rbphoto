@@ -1,0 +1,124 @@
+#!/usr/bin/ruby
+#
+#
+#
+
+require 'getoptlong'
+require 'ftools'
+require 'exif'
+
+$RBPHOTO_VERSION = '0.1'
+
+class RbPhoto
+
+  class Args < Hash
+    def initialize
+      parser = GetoptLong.new(
+	['--datedir',	'-D',	GetoptLong::NO_ARGUMENT],
+	['--move',	'-m',	GetoptLong::NO_ARGUMENT],
+	['--without-rename',	'-N',	GetoptLong::NO_ARGUMENT],
+	['--photographer',	'-p',	GetoptLong::REQUIRED_ARGUMENT],
+	['--no-act',		'-n',	GetoptLong::NO_ARGUMENT],
+	['--verbose',		'-v',	GetoptLong::NO_ARGUMENT],
+	['--help',		'-h',	GetoptLong::NO_ARGUMENT],
+	['--version',			GetoptLong::NO_ARGUMENT])
+      begin
+	parser.each do |name, arg|
+	  self[name.sub(/^--/, '').gsub(/-/, '_').downcase] = arg
+	end
+      rescue
+	self['help'] = true
+      end
+    end
+  end
+
+  class Import
+
+    def initialize
+      @args = RbPhoto::Args.new
+      @postfix = ''
+      if ( @args['version'] )
+	print self.version
+	exit
+      elsif ( @args['help'] || ARGV.size < 2 )
+	print self.help
+	exit
+      end
+      @dstdir = ARGV.pop
+      @target = self.prepare_target(ARGV)
+      @postfix = "-#{@args['photographer']}" if ( @args['photographer'] )
+      self.copy
+    end
+
+    def prepare_target(args = ARGV)
+      ret = []
+      args.each do |arg|
+	if (File.directory?(arg))
+	  ret.concat(Dir.glob("#{arg}/*.{jpg,jpeg,JPG,JPEG}"))
+	else
+	  ret.push(arg)
+	end
+      end
+      return ret
+    end
+
+    def copy
+      @target.each do |file|
+	if ( @args['without_rename'] )
+	  target_file = file
+	else
+	  target_file = self.rename(file)
+	end
+
+	target_dir = File.dirname(target_file)
+	if ( ! File.directory?(target_dir) )
+	  puts "mkdir -p #{target_dir}" if ( @args['verbose'] )
+	  File.makedirs(target_dir) if ( ! @args['no_act'] )
+	end
+
+	begin
+	  if ( @args['move'] )
+	    puts "mv #{file} #{target_file}" if ( @args['verbose'] )
+	    File.mv(file, target_file) if ( ! @args['no_act'] )
+	  else
+	    puts "cp #{file} #{target_file}" if ( @args['verbose'] )
+	    File.cp(file, target_file) if ( ! @args['no_act'] )
+	  end
+	  File.chmod(0444, target_file)
+	rescue
+	  
+	end
+      end
+    end
+
+    def rename(filename)
+      exif = Exif.new(filename)
+      datedir = ''
+      begin
+	time = Time.local(*exif['Date and Time'].split(/[:\s]/))
+      rescue
+	STDERR.print "Cannot read exif data correctly: #{filename}\n"
+	return @dstdir + "/#{File.basename(filename, '.*')}#{@postfix}.jpg"
+      end
+      datedir = '/' + time.strftime('%Y-%m-%d') if ( @args['datedir'] )
+      return @dstdir + datedir + "/#{time.strftime('%Y-%m-%d-%H-%M-%S')}#{@postfix}.jpg"
+    end
+ 
+    def help
+      puts "help"
+    end
+
+    def version
+      return <<_EOT
+rbphoto-import (rbphoto) #{$RBPHOTO_VERSION}
+
+Copyright (C) Taku YASUI <tach@debian.or.jp>
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+_EOT
+    end
+  end
+
+end
+
+RbPhoto::Import.new
