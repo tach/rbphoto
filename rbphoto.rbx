@@ -1,4 +1,6 @@
 #!/usr/bin/ruby
+#
+# RbPhoto - Ruby Photo Database
 
 require 'cgi'
 require 'erb/erbl'
