@@ -36,7 +36,7 @@ class RbPhoto
 
     def initialize
       @args = RbPhoto::Args.new
-      @postfix = ''
+      @postfix = '-' + ENV['USER']
       if ( @args['version'] )
 	print self.version
 	exit
@@ -105,7 +105,20 @@ class RbPhoto
     end
  
     def help
-      puts "help"
+      return <<_EOT
+Usage: #{$0} [options] src_(dir|file)[s]... target_dir
+Copy photo image from src to target.  it renames photo file name
+not to duplicate by its exif data.
+
+Options:
+  -D, --datedir              copy/move photos with datedir
+  -m, --move                 move photos instead of copy
+  -N, --without-rename       do not rename photo files
+      --photographer=id      set photographer id (default: $USER)
+  -n, --no-act               do not copy/move only test
+  -h, --help                 show this help
+      --version              show software version
+_EOT
     end
 
     def version
