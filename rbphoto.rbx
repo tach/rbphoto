@@ -3,6 +3,8 @@
 # RbPhoto - Ruby Photo Database
 #
 # Copyright (C) 2002 Taku YASUI <tach@debian.or.jp>, All Rights Reserved.
+#
+# This software is distribured under the GNU General Public Licence.
 
 require 'cgi'
 require 'erb/erbl'
