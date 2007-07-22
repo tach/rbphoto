@@ -7,6 +7,6 @@ Standards-Version: 3.7.2
 
 Package: rbphoto
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, ruby, libexif-ruby, libmagick-ruby
+Depends: ${shlibs:Depends}, ${misc:Depends}, ruby, libexif-ruby, librmagick-ruby
 Description: Ruby web photo databse
  Ruby web photo database

@@ -1,3 +1,9 @@
+rbphoto (0.1.1) unstable; urgency=low
+
+  * Fix: correct dependency
+
+ -- Taku YASUI <tach@debian.or.jp>  Sun, 22 Jul 2007 17:30:01 +0900
+
 rbphoto (0.1.0) unstable; urgency=low
 
   * Initial Release.
