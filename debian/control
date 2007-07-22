@@ -1,12 +1,12 @@
 Source: rbphoto
-Section: unknown
+Section: web
 Priority: extra
 Maintainer: Taku YASUI <tach@debian.or.jp>
 Build-Depends: cdbs, debhelper (>= 5)
 Standards-Version: 3.7.2
 
 Package: rbphoto
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libexif-ruby, libmagick-ruby
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, ruby, libexif-ruby, libmagick-ruby
 Description: Ruby web photo databse
  Ruby web photo database

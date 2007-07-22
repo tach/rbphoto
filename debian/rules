@@ -4,4 +4,4 @@ include /usr/share/cdbs/1/rules/debhelper.mk
 
 install/rbphoto::
 	install -m 755 bin/* $(DEB_DESTDIR)/usr/bin/
-	install -m 644 rbphoto.rb $(DEB_DESTDIR)/usr/share/rbphoto/
+	install -m 755 rbphoto.rb $(DEB_DESTDIR)/usr/share/rbphoto/
