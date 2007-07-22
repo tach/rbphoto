@@ -1,0 +1,40 @@
+#!/usr/bin/ruby
+#
+#
+#
+
+require 'getoptlong'
+require '/usr/share/rbphoto/rbphoto'
+
+class RbPhoto
+
+  class Args < Hash
+    def initialize
+      parser = GetoptLong.new(
+	['--config',			'-c',	GetoptLong::REQUIRE_ARGUMENT],
+	['--device',			'-d',	GetoptLong::REQUIRE_ARGUMENT],
+	['--fetch',				GetoptLong::NO_ARGUMENT],
+	['--mount',			'-m',	GetoptLong::REQUIRE_ARGUMENT],
+	['--rename',			'-r',	GetoptLong::REQUIRE_ARGUMENT],
+	['--resize',			'-s',	GetoptLong::REQUIRE_ARGUMENT],
+	['--help',			'-h',	GetoptLong::NO_ARGUMENT],
+	['--version',				GetoptLong::NO_ARGUMENT])
+      parser.each do |name, arg|
+        self[name.sub(/^--/, '').gsub(/-/, '_').downcase] = arg
+      end
+    end
+  end
+
+end
+
+#args = RbPhoto::Args.new()
+#p args
+
+dir = RbPhoto::PhotoDir.new('/bin')
+
+# dir.copy(to_dir, opt)
+# dir.move(to_dir)
+
+dir.each do |d|
+  p d
+end

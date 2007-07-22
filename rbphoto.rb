@@ -7,10 +7,11 @@
 # This software is distribured under the GNU General Public Licence.
 
 require 'cgi'
+require 'ftools'
 require 'erb/erbl'
 
 CONVERT = '/usr/bin/convert'
-PHOTODIR = ENV[HOME] + '/public_html/Photos'
+PHOTODIR = ENV['HOME'] + '/public_html/Photos'
 THUMBNAIL = '.tn'
 TN_WIDTH = '120'
 TN_HEIGHT = '90'
@@ -19,20 +20,23 @@ CHARSET = 'euc-jp'
 
 rhtml = {}
 
-class Photos
+class RbPhoto
 
-  class Photo
+  class Photo < String
 
     def initialize(filename)
       @filename = (filename).untaint
       @tn_filename = (File.dirname(@filename) + '/' + THUMBNAIL + '/' + File.basename(@filename, '.jpg') + THUMBNAIL + '.jpg').untaint
+      super
+    end
+
+    def create_thumbnail(dir)
       if ( ! File.exist?(@tn_filename) )
 	system("#{CONVERT} -size #{TN_WIDTH}x#{TN_HEIGHT} #{@filename} #{@tn_filename}")
       end
     end
 
-    def to_s
-      return @filename
+    def copy
     end
 
     def to_htmlsrc
@@ -60,6 +64,40 @@ class Photos
 
   end
 
+  class PhotoDir < Dir
+
+    def initialize(dir)
+      super
+    end
+
+    def each
+      super do |file|
+	if ( File.file?(file) && /\.jpg$/i =~ file )
+	  yield RbPhoto::Photo.new(file)
+	end
+      end
+    end
+
+    def copy(dir, opts = {})
+      self.each do |photo|
+	photo.copy(dir, opts)
+	#stat = File.stat(photo)
+	#File.utime(stat.atime, stat.mtime, "#{dir}/#{File.basename(photo)}")
+      end
+    end
+
+    def move(dir, opts = {})
+      self.each do |photo|
+	photo.move(dir, opts)
+      end
+    end
+
+    def html
+      return ERbLight.new(@@rhtml['main']).result(binding)
+    end
+
+  end
+
   # initialize and print (that's all ^^;)
   def initialize(rhtml)
     @cgi = CGI.new
@@ -72,7 +110,7 @@ class Photos
     end
     files = self.getPhotos
     if ( ! files.empty? )
-      mkdir(#{@tn_dir}) if ( ! File.directory?(@tn_dir) )
+      mkdir(@tn_dir) if ( ! File.directory?(@tn_dir) )
       files.sort.each do |file|
 	@files.push(Photos::Photo.new(file))
       end
@@ -84,7 +122,7 @@ class Photos
     end
   end
 
-  def getPhoto
+  def newPhoto
   end
 
   def getPhotos
@@ -139,4 +177,7 @@ Created by <a href="http://rbphoto.sourceforge.jp/">rbphoto</a>
 </body>
 </html>
 _EOT
-Photos::new(rhtml)
+
+if ( __FILE__ == $0 )
+  Photos::new(rhtml)
+end

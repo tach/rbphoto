@@ -1,0 +1,37 @@
+#!/usr/bin/ruby
+
+CONVERT = '/usr/bin/convert'
+PREFIX = 'tach+'
+POSTFIX_original = '.orig'
+SIZE = '800x600'
+From = ARGV[0]
+To = ARGV[1]
+
+#
+# Functions
+#
+
+def mkdirp(dir)
+  return TRUE if ( File.directory?(dir) )
+  if ( /\/[^\/]+$/ =~ dir )
+    mkdirp(Regexp.last_match.pre_match);
+  end 
+  Dir.mkdir(dir, 0755)
+end
+
+#
+# Main
+#
+
+# mkdir 'To' directory
+mkdirp(To)
+
+# rename/resize files
+Dir.foreach(From) do |file|
+  next if ( /\.jpg$/ !~ file )
+  newfile = To + '/' + PREFIX + File.mtime(From + '/' + file).strftime('%Y-%m-%d+%H-%M-%S') + PREFIX_original + '.jpg'
+  thumbnail = To + '/' + PREFIX + File.mtime(From + '/' + file).strftime('%Y-%m-%d+%H-%M-%S') + PREFIX_thumbnail + '.jpg'
+  system('mv ' + From + '/' + file + ' ' + newfile)
+  system('convert')
+  File.chmod(0644, newfile)
+end
