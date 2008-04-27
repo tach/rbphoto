@@ -1,3 +1,9 @@
+rbphoto (0.1.2) unstable; urgency=low
+
+  * Modify for new debian standard version: 3.7.3
+
+ -- Taku YASUI <tach@debian.or.jp>  Sun, 27 Apr 2008 23:19:06 +0900
+
 rbphoto (0.1.1) unstable; urgency=low
 
   * Fix: correct dependency
