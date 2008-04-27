@@ -9,6 +9,14 @@ require 'exif'
 
 $RBPHOTO_VERSION = '0.1'
 
+class Exif
+  def datetime
+    self.each_entry do |name, value|
+      return value if name.match(/^Date and Time/)
+    end
+  end
+end
+
 class RbPhoto
 
   class Args < Hash
@@ -92,13 +100,14 @@ class RbPhoto
     end
 
     def rename(filename)
-      exif = Exif.new(filename)
       datedir = ''
+      time = Time.at(0)
       begin
-	time = Time.local(*exif['Date and Time'].split(/[:\s]/))
+        exif = Exif.new(filename)
+        time = Time.local(*exif.datetime.split(/[:\s]/))
       rescue
-	STDERR.print "Cannot read exif data correctly: #{filename}\n"
-	return @dstdir + "/#{File.basename(filename, '.*')}#{@postfix}.jpg"
+        STDERR.print "Cannot read exif data correctly: #{filename}\n"
+        return @dstdir + "/#{File.basename(filename, '.*')}#{@postfix}.jpg"
       end
       datedir = '/' + time.strftime('%Y-%m-%d') if ( @args['datedir'] )
       return @dstdir + datedir + "/#{time.strftime('%Y-%m-%d-%H-%M-%S')}#{@postfix}.jpg"
@@ -135,3 +144,5 @@ _EOT
 end
 
 RbPhoto::Import.new
+
+# vim: set ts=2 sw=2 expandtab:
