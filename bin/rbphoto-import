@@ -110,7 +110,7 @@ class RbPhoto
         return @dstdir + "/#{File.basename(filename, '.*')}#{@postfix}.jpg"
       end
       datedir = '/' + time.strftime('%Y-%m-%d') if ( @args['datedir'] )
-      return @dstdir + datedir + "/#{time.strftime('%Y-%m-%d-%H-%M-%S')}#{@postfix}.jpg"
+      return @dstdir + datedir + "/#{time.strftime('%Y%m%d-%H%M%S')}#{@postfix}.jpg"
     end
  
     def help

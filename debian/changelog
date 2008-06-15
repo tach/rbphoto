@@ -1,3 +1,9 @@
+rbphoto (0.1.3) unstable; urgency=low
+
+  * Shorten renamed filename
+
+ -- Taku YASUI <tach@debian.or.jp>  Sun, 15 Jun 2008 14:56:49 +0900
+
 rbphoto (0.1.2) unstable; urgency=low
 
   * Modify for new debian standard version: 3.7.3
