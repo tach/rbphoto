@@ -95,8 +95,8 @@ class RbPhoto
 	    FileUtils.cp(file, target_file, @fileopts)
 	  end
 	  FileUtils.chmod(0444, target_file, @fileopts)
-	rescue
-	  
+	rescue => e
+    STDERR.puts "ERROR: execution failed: #{e.to_s}"
 	end
       end
     end
