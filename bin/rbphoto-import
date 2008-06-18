@@ -25,6 +25,7 @@ class RbPhoto
 	['--datedir',	'-D',	GetoptLong::NO_ARGUMENT],
 	['--move',	'-m',	GetoptLong::NO_ARGUMENT],
 	['--without-rename',	'-N',	GetoptLong::NO_ARGUMENT],
+	['--with-movie',	'-M',	GetoptLong::NO_ARGUMENT],
 	['--photographer',	'-p',	GetoptLong::REQUIRED_ARGUMENT],
 	['--no-act',		'-n',	GetoptLong::NO_ARGUMENT],
 	['--force',		'-f',	GetoptLong::NO_ARGUMENT],
@@ -67,6 +68,7 @@ class RbPhoto
       args.each do |arg|
 	if (File.directory?(arg))
 	  ret.concat(Dir.glob("#{arg}/*.{jpg,jpeg,JPG,JPEG}"))
+	  ret.concat(Dir.glob("#{arg}/*.{avi,AVI,mpg,MPG}")) if ( @args['with_movie'] )
 	else
 	  ret.push(arg)
 	end
@@ -118,16 +120,30 @@ class RbPhoto
 
     def rename(filename)
       datedir = ''
+      suffix = ''
       time = Time.at(0)
-      begin
-        exif = Exif.new(filename)
-        time = Time.local(*exif.datetime.split(/[:\s]/))
-      rescue
-        STDERR.print "Cannot read exif data correctly: #{filename}\n"
-        return @dstdir + "/#{File.basename(filename, '.*')}#{@postfix}.jpg"
+      case File.extname(filename)
+      when /^\.avi$/i
+        suffix = 'avi'
+        time = File.mtime(filename)
+      when /^\.mpe?g$/i
+        suffix = 'mpg'
+        time = File.mtime(filename)
+      when /^\.jpe?g$/i
+        suffix = 'jpg'
+        begin
+          exif = Exif.new(filename)
+          time = Time.local(*exif.datetime.split(/[:\s]/))
+        rescue
+          STDERR.print "Cannot read exif data correctly: #{filename}\n"
+          return @dstdir + "/#{File.basename(filename, '.*')}#{@postfix}.#{suffix}"
+        end
+      else
+        STDERR.print "Unsupported filetype: #{filename}\n"
+        return @dstdir + "/#{filename}"
       end
       datedir = '/' + time.strftime('%Y-%m-%d') if ( @args['datedir'] )
-      return @dstdir + datedir + "/#{time.strftime('%Y%m%d-%H%M%S')}#{@postfix}.jpg"
+      return @dstdir + datedir + "/#{time.strftime('%Y%m%d-%H%M%S')}#{@postfix}.#{suffix}"
     end
  
     def help
@@ -140,6 +156,7 @@ Options:
   -D, --datedir              copy/move photos with datedir
   -f, --force                force to overwrite when move
   -m, --move                 move photos instead of copy
+  -M, --with-movie           process not only images but also movies
   -N, --without-rename       do not rename photo files
   -p, --photographer=id      set photographer id (default: $USER)
   -n, --no-act               do not copy/move only test
