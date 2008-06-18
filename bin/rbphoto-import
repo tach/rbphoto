@@ -46,8 +46,7 @@ class RbPhoto
 
     def initialize
       @args = RbPhoto::Args.new
-      @fileopts = {:force => @args['force'],
-                   :verbose => @args['verbose'],
+      @fileopts = {:verbose => @args['verbose'],
                    :noop => @args['no_act']}
       @postfix = '-' + ENV['USER']
       if ( @args['version'] )
@@ -77,27 +76,43 @@ class RbPhoto
 
     def copy
       @target.each do |file|
-	if ( @args['without_rename'] )
-	  target_file = file
-	else
-	  target_file = self.rename(file)
-	end
+       	if ( @args['without_rename'] )
+      	  target_file = file
+      	else
+	        target_file = self.rename(file)
+       	end
 
-	target_dir = File.dirname(target_file)
-	if ( ! File.directory?(target_dir) )
-	  FileUtils.makedirs(target_dir, @fileopts)
-	end
+       	target_dir = File.dirname(target_file)
+       	if ( ! File.directory?(target_dir) )
+          begin
+            FileUtils.makedirs(target_dir, @fileopts)
+          rescue => e
+            STDERR.puts "ERROR: mkdir failed: #{e.to_s}"
+          end
+      	end
 
-	begin
-	  if ( @args['move'] )
-	    FileUtils.mv(file, target_file, @fileopts)
-	  else
-	    FileUtils.cp(file, target_file, @fileopts)
-	  end
-	  FileUtils.chmod(0444, target_file, @fileopts)
-	rescue => e
-    STDERR.puts "ERROR: execution failed: #{e.to_s}"
-	end
+     	  if ( @args['move'] )
+          begin
+	          FileUtils.mv(file, target_file, @fileopts)
+          rescue => e
+            if ( e.is_a?(Errno::EACCES) && @args['force'] && !File.writable?(target_file))
+              FileUtils.chmod(0644, target_file, @fileopts)
+              retry
+            end
+            STDERR.puts "ERROR: mv failed: #{e.to_s}"
+          end
+  	    else
+          begin
+	          FileUtils.cp(file, target_file, @fileopts)
+          rescue => e
+            STDERR.puts "ERROR: cp failed: #{e.to_s}"
+          end
+	      end
+        begin
+	        FileUtils.chmod(0444, target_file, @fileopts)
+	      rescue => e
+          STDERR.puts "ERROR: chmod failed: #{e.to_s}"
+	      end
       end
     end
 

@@ -3,8 +3,9 @@ rbphoto (0.1.4) unstable; urgency=low
   * Use "fileutils" instead of "ftools"
     - Use fileutils feature to show verbose output
   * Add "--force" option to overwrite when the file exists
+  * Show more errors 
 
- -- Taku YASUI <tach@debian.or.jp>  Thu, 19 Jun 2008 02:42:49 +0900
+ -- Taku YASUI <tach@debian.or.jp>  Thu, 19 Jun 2008 04:25:08 +0900
 
 rbphoto (0.1.3) unstable; urgency=low
 
