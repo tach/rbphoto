@@ -4,7 +4,7 @@
 #
 
 require 'getoptlong'
-require 'ftools'
+require 'fileutils'
 require 'exif'
 
 $RBPHOTO_VERSION = '0.1'
@@ -27,9 +27,10 @@ class RbPhoto
 	['--without-rename',	'-N',	GetoptLong::NO_ARGUMENT],
 	['--photographer',	'-p',	GetoptLong::REQUIRED_ARGUMENT],
 	['--no-act',		'-n',	GetoptLong::NO_ARGUMENT],
+	['--force',		'-f',	GetoptLong::NO_ARGUMENT],
 	['--verbose',		'-v',	GetoptLong::NO_ARGUMENT],
 	['--help',		'-h',	GetoptLong::NO_ARGUMENT],
-	['--version',			GetoptLong::NO_ARGUMENT])
+	['--version', '-V',			GetoptLong::NO_ARGUMENT])
       begin
 	parser.each do |name, arg|
 	  self[name.sub(/^--/, '').gsub(/-/, '_').downcase] = arg
@@ -81,18 +82,18 @@ class RbPhoto
 	target_dir = File.dirname(target_file)
 	if ( ! File.directory?(target_dir) )
 	  puts "mkdir -p #{target_dir}" if ( @args['verbose'] )
-	  File.makedirs(target_dir) if ( ! @args['no_act'] )
+	  FileUtils.makedirs(target_dir) if ( ! @args['no_act'] )
 	end
 
 	begin
 	  if ( @args['move'] )
 	    puts "mv #{file} #{target_file}" if ( @args['verbose'] )
-	    File.mv(file, target_file) if ( ! @args['no_act'] )
+	    FileUtils.mv(file, target_file, {:force => @args['force']}) if ( ! @args['no_act'] )
 	  else
 	    puts "cp #{file} #{target_file}" if ( @args['verbose'] )
-	    File.cp(file, target_file) if ( ! @args['no_act'] )
+	    FileUtils.cp(file, target_file, {:force => @args['force']}) if ( ! @args['no_act'] )
 	  end
-	  File.chmod(0444, target_file)
+	  FileUtils.chmod(0444, target_file)
 	rescue
 	  
 	end
@@ -121,12 +122,14 @@ not to duplicate by its exif data.
 
 Options:
   -D, --datedir              copy/move photos with datedir
+  -f, --force                force to overwrite when move
   -m, --move                 move photos instead of copy
   -N, --without-rename       do not rename photo files
-      --photographer=id      set photographer id (default: $USER)
+  -p, --photographer=id      set photographer id (default: $USER)
   -n, --no-act               do not copy/move only test
   -h, --help                 show this help
-      --version              show software version
+  -v, --verbose              make verbose output
+  -V, --version              show software version
 _EOT
     end
 

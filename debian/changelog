@@ -1,3 +1,10 @@
+rbphoto (0.1.4) unstable; urgency=low
+
+  * Use "fileutils" instead of "ftools"
+  * Add "--force" option to overwrite when the file exists
+
+ -- Taku YASUI <tach@debian.or.jp>  Thu, 19 Jun 2008 02:05:32 +0900
+
 rbphoto (0.1.3) unstable; urgency=low
 
   * Shorten renamed filename
