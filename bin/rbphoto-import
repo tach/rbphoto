@@ -33,6 +33,7 @@ class RbPhoto
 	['--version', '-V',			GetoptLong::NO_ARGUMENT])
       begin
 	parser.each do |name, arg|
+    arg = true if (arg == "")
 	  self[name.sub(/^--/, '').gsub(/-/, '_').downcase] = arg
 	end
       rescue
@@ -45,6 +46,9 @@ class RbPhoto
 
     def initialize
       @args = RbPhoto::Args.new
+      @fileopts = {:force => @args['force'],
+                   :verbose => @args['verbose'],
+                   :noop => @args['no_act']}
       @postfix = '-' + ENV['USER']
       if ( @args['version'] )
 	print self.version
@@ -81,19 +85,16 @@ class RbPhoto
 
 	target_dir = File.dirname(target_file)
 	if ( ! File.directory?(target_dir) )
-	  puts "mkdir -p #{target_dir}" if ( @args['verbose'] )
-	  FileUtils.makedirs(target_dir) if ( ! @args['no_act'] )
+	  FileUtils.makedirs(target_dir, @fileopts)
 	end
 
 	begin
 	  if ( @args['move'] )
-	    puts "mv #{file} #{target_file}" if ( @args['verbose'] )
-	    FileUtils.mv(file, target_file, {:force => @args['force']}) if ( ! @args['no_act'] )
+	    FileUtils.mv(file, target_file, @fileopts)
 	  else
-	    puts "cp #{file} #{target_file}" if ( @args['verbose'] )
-	    FileUtils.cp(file, target_file, {:force => @args['force']}) if ( ! @args['no_act'] )
+	    FileUtils.cp(file, target_file, @fileopts)
 	  end
-	  FileUtils.chmod(0444, target_file)
+	  FileUtils.chmod(0444, target_file, @fileopts)
 	rescue
 	  
 	end
