@@ -23,6 +23,7 @@ require 'getoptlong'
 require 'fileutils'
 require 'exif'
 require 'gettext'
+require 'gtk2'
 require 'rbphoto'
 
 class Exif
@@ -68,6 +69,10 @@ class RbPhoto
       @args = RbPhoto::Args.new
       @fileopts = {:verbose => @args['verbose'], :noop => @args['no_act']}
       @postfix = '-' + ENV['USER']
+      if ( ! @args['no_gui'] )
+        RbPhoto::Import::Gui.new
+        exit
+      end
       if ( @args['version'] )
         print self.version
         exit
@@ -193,8 +198,84 @@ This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 _EOT
     end
-  end
 
+    class Gui < RbPhoto::Import
+      def initialize
+        window = self.main_window
+        window.show_all
+        Gtk.main
+      end
+
+      def execute(w)
+        if (@executing)
+          @button_exec.label = _("Import")
+          push_status(_("Stop"))
+          show_log(_("Stopped by user"))
+          @executing = false
+          return
+        end
+        @executing = true
+        push_status(_("Importing: please wait ..."))
+        show_log(_("Start importing"))
+        @button_exec.label = _("Stop")
+      end
+
+      def show_log(msg)
+        @log_text.buffer.insert(@log_text.buffer.end_iter, Time.now.strftime("%Y/%m/%d %H:%M:%S ") + msg + "\n")
+      end
+
+      def push_status(msg)
+        @status_bar.push(@status_bar_context_id, msg)
+      end
+
+      def main_window
+        w = Gtk::Window.new
+        w.title = "#{RbPhoto::NAME} #{RbPhoto::VERSION}"
+        w.set_default_size(400, -1)
+
+        # quit when closing window
+        w.signal_connect('delete_event') do
+          Gtk.main_quit
+          false
+        end
+
+        whole_box = Gtk::VBox.new(false, 0)
+
+        main_box = Gtk::VBox.new(false, 10)
+        button_box = Gtk::HBox.new(false, 10)
+
+        show_log_check = Gtk::CheckButton.new(_("Show _verbose log"))
+        button_box.pack_start(show_log_check, false, true, 0)
+
+        no_act_check = Gtk::CheckButton.new(_("Trial run with _no changes made"))
+        button_box.pack_start(no_act_check, false, true, 0)
+
+        @button_exec = Gtk::Button.new(_("Execute"))
+        @button_exec.signal_connect( "clicked" ) { |w| execute(w) }
+        button_box.pack_end(@button_exec, false, true, 0)
+
+        main_box.pack_end(button_box, false, true, 0)
+
+        # show status bar
+        @status_bar = Gtk::Statusbar.new
+        @status_bar_context_id = @status_bar.get_context_id("main")
+
+        # show log box
+        log_box = Gtk::ScrolledWindow.new(hadjustment = nil, vadjustment = nil)
+        log_box.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_ALWAYS)
+        @log_text = Gtk::TextView.new
+        @log_text.editable = false
+        log_box.add(@log_text)
+
+        w.add(whole_box)
+        whole_box.pack_start(main_box, false, true, 5)
+        whole_box.pack_start(log_box, true, true, 0)
+        whole_box.pack_end(@status_bar, false, true, 0)
+
+        return w
+      end
+    end
+  end
 end
 
 RbPhoto::Import.new

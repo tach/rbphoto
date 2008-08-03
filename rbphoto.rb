@@ -21,8 +21,9 @@ CHARSET = 'euc-jp'
 rhtml = {}
 
 class RbPhoto
-  NAME = "Robust Photo management tool"
-  VERSION = "0.1.5"
+  NAME = "RbPhoto"
+  LONGNAME = "Robust Photo management tool"
+  VERSION = "0.2.0"
 
   class Photo < String
 

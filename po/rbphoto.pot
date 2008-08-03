@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2008-08-03 23:58+0900\n"
-"PO-Revision-Date: 2008-08-03 23:58+0900\n"
+"POT-Creation-Date: 2008-08-04 01:07+0900\n"
+"PO-Revision-Date: 2008-08-04 01:07+0900\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,5 +16,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-msgid "copy/move photos with datedir"
+#: bin/rbphoto-import:189
+msgid "hogehogehoge"
 msgstr ""
