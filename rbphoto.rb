@@ -34,7 +34,7 @@ class RbPhoto
 
     def create_thumbnail(dir)
       if ( ! File.exist?(@tn_filename) )
-	system("#{CONVERT} -size #{TN_WIDTH}x#{TN_HEIGHT} #{@filename} #{@tn_filename}")
+        system("#{CONVERT} -size #{TN_WIDTH}x#{TN_HEIGHT} #{@filename} #{@tn_filename}")
       end
     end
 
@@ -74,23 +74,23 @@ class RbPhoto
 
     def each
       super do |file|
-	if ( File.file?(file) && /\.jpg$/i =~ file )
-	  yield RbPhoto::Photo.new(file)
-	end
+        if ( File.file?(file) && /\.jpg$/i =~ file )
+          yield RbPhoto::Photo.new(file)
+        end
       end
     end
 
     def copy(dir, opts = {})
       self.each do |photo|
-	photo.copy(dir, opts)
-	#stat = File.stat(photo)
-	#File.utime(stat.atime, stat.mtime, "#{dir}/#{File.basename(photo)}")
+        photo.copy(dir, opts)
+        #stat = File.stat(photo)
+        #File.utime(stat.atime, stat.mtime, "#{dir}/#{File.basename(photo)}")
       end
     end
 
     def move(dir, opts = {})
       self.each do |photo|
-	photo.move(dir, opts)
+        photo.move(dir, opts)
       end
     end
 
@@ -114,7 +114,7 @@ class RbPhoto
     if ( ! files.empty? )
       mkdir(@tn_dir) if ( ! File.directory?(@tn_dir) )
       files.sort.each do |file|
-	@files.push(Photos::Photo.new(file))
+        @files.push(Photos::Photo.new(file))
       end
       print @cgi.header({ 'type' => "text/html; charset=#{CHARSET}" })
       print ERbLight.new(rhtml['main']).result(binding)

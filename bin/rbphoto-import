@@ -21,23 +21,24 @@ class RbPhoto
   class Args < Hash
     def initialize
       parser = GetoptLong.new(
-	['--datedir',	'-D',	GetoptLong::NO_ARGUMENT],
-	['--move',	'-m',	GetoptLong::NO_ARGUMENT],
-	['--without-rename',	'-N',	GetoptLong::NO_ARGUMENT],
-	['--with-movie',	'-M',	GetoptLong::NO_ARGUMENT],
-	['--photographer',	'-p',	GetoptLong::REQUIRED_ARGUMENT],
-	['--no-act',		'-n',	GetoptLong::NO_ARGUMENT],
-	['--force',		'-f',	GetoptLong::NO_ARGUMENT],
-	['--verbose',		'-v',	GetoptLong::NO_ARGUMENT],
-	['--help',		'-h',	GetoptLong::NO_ARGUMENT],
-	['--version', '-V',			GetoptLong::NO_ARGUMENT])
+        ['--datedir',         '-D',        GetoptLong::NO_ARGUMENT],
+        ['--force',           '-f',        GetoptLong::NO_ARGUMENT],
+        ['--no-gui',          '-G',        GetoptLong::NO_ARGUMENT],
+        ['--help',            '-h',        GetoptLong::NO_ARGUMENT],
+        ['--with-movie',      '-M',        GetoptLong::NO_ARGUMENT],
+        ['--move',                  '-m',	GetoptLong::NO_ARGUMENT],
+        ['--without-rename',  '-N',        GetoptLong::NO_ARGUMENT],
+        ['--no-act',          '-n',        GetoptLong::NO_ARGUMENT],
+        ['--photographer',    '-p',        GetoptLong::REQUIRED_ARGUMENT],
+        ['--version',         '-V', GetoptLong::NO_ARGUMENT],
+        ['--verbose',         '-v',        GetoptLong::NO_ARGUMENT])
       begin
-	parser.each do |name, arg|
+        parser.each do |name, arg|
     arg = true if (arg == "")
-	  self[name.sub(/^--/, '').gsub(/-/, '_').downcase] = arg
-	end
+          self[name.sub(/^--/, '').gsub(/-/, '_').downcase] = arg
+        end
       rescue
-	self['help'] = true
+        self['help'] = true
       end
     end
   end
@@ -50,11 +51,11 @@ class RbPhoto
                    :noop => @args['no_act']}
       @postfix = '-' + ENV['USER']
       if ( @args['version'] )
-	print self.version
-	exit
+        print self.version
+        exit
       elsif ( @args['help'] || ARGV.size < 2 )
-	print self.help
-	exit
+        print self.help
+        exit
       end
       @dstdir = ARGV.pop
       @target = self.prepare_target(ARGV)
@@ -65,36 +66,36 @@ class RbPhoto
     def prepare_target(args = ARGV)
       ret = []
       args.each do |arg|
-	if (File.directory?(arg))
-	  ret.concat(Dir.glob("#{arg}/*.{jpg,jpeg,JPG,JPEG}"))
-	  ret.concat(Dir.glob("#{arg}/*.{avi,AVI,mpg,MPG}")) if ( @args['with_movie'] )
-	else
-	  ret.push(arg)
-	end
+        if (File.directory?(arg))
+          ret.concat(Dir.glob("#{arg}/*.{jpg,jpeg,JPG,JPEG}"))
+          ret.concat(Dir.glob("#{arg}/*.{avi,AVI,mpg,MPG}")) if ( @args['with_movie'] )
+        else
+          ret.push(arg)
+        end
       end
       return ret
     end
 
     def copy
       @target.each do |file|
-       	if ( @args['without_rename'] )
-      	  target_file = file
-      	else
-	        target_file = self.rename(file)
-       	end
+               if ( @args['without_rename'] )
+                target_file = file
+              else
+                target_file = self.rename(file)
+               end
 
-       	target_dir = File.dirname(target_file)
-       	if ( ! File.directory?(target_dir) )
+               target_dir = File.dirname(target_file)
+               if ( ! File.directory?(target_dir) )
           begin
             FileUtils.makedirs(target_dir, @fileopts)
           rescue => e
             STDERR.puts "ERROR: mkdir failed: #{e.to_s}"
           end
-      	end
+              end
 
-     	  if ( @args['move'] )
+               if ( @args['move'] )
           begin
-	          FileUtils.mv(file, target_file, @fileopts)
+                  FileUtils.mv(file, target_file, @fileopts)
           rescue => e
             if ( e.is_a?(Errno::EACCES) && @args['force'] && !File.writable?(target_file))
               FileUtils.chmod(0644, target_file, @fileopts)
@@ -102,18 +103,18 @@ class RbPhoto
             end
             STDERR.puts "ERROR: mv failed: #{e.to_s}"
           end
-  	    else
+              else
           begin
-	          FileUtils.cp(file, target_file, @fileopts)
+                  FileUtils.cp(file, target_file, @fileopts)
           rescue => e
             STDERR.puts "ERROR: cp failed: #{e.to_s}"
           end
-	      end
+              end
         begin
-	        FileUtils.chmod(0444, target_file, @fileopts)
-	      rescue => e
+                FileUtils.chmod(0444, target_file, @fileopts)
+              rescue => e
           STDERR.puts "ERROR: chmod failed: #{e.to_s}"
-	      end
+              end
       end
     end
 
@@ -167,7 +168,7 @@ _EOT
 
     def version
       return <<_EOT
-rbphoto-import (rbphoto) #{RbPhoto::VERSION}
+Robust Photo management tool (import) #{RbPhoto::VERSION}
 
 Copyright (C) Taku YASUI <tach@debian.or.jp>
 This is free software; see the source for copying conditions.  There is NO
