@@ -1,0 +1,20 @@
+# Japanese translations for PACKAGE package
+# PACKAGE パッケージに対する英訳.
+# Copyright (C) 2008 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Taku YASUI <tach@arege.net>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2008-08-03 23:58+0900\n"
+"PO-Revision-Date: 2008-08-03 23:59+0900\n"
+"Last-Translator: Taku YASUI <tach@arege.net>\n"
+"Language-Team: Japanese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "copy/move photos with datedir"
+msgstr "日付ディレクトリ以下にコピー・移動する"
