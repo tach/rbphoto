@@ -6,8 +6,7 @@
 require 'getoptlong'
 require 'fileutils'
 require 'exif'
-
-$RBPHOTO_VERSION = '0.1'
+require 'rbphoto'
 
 class Exif
   def datetime
@@ -168,7 +167,7 @@ _EOT
 
     def version
       return <<_EOT
-rbphoto-import (rbphoto) #{$RBPHOTO_VERSION}
+rbphoto-import (rbphoto) #{RbPhoto::VERSION}
 
 Copyright (C) Taku YASUI <tach@debian.or.jp>
 This is free software; see the source for copying conditions.  There is NO

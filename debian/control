@@ -3,7 +3,7 @@ Section: web
 Priority: extra
 Maintainer: Taku YASUI <tach@debian.or.jp>
 Build-Depends: cdbs, debhelper (>= 5)
-Standards-Version: 3.7.3
+Standards-Version: 3.8.0
 
 Package: rbphoto
 Architecture: all

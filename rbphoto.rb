@@ -8,7 +8,7 @@
 
 require 'cgi'
 require 'ftools'
-require 'erb/erbl'
+require 'erb'
 
 CONVERT = '/usr/bin/convert'
 PHOTODIR = ENV['HOME'] + '/public_html/Photos'
@@ -21,6 +21,8 @@ CHARSET = 'euc-jp'
 rhtml = {}
 
 class RbPhoto
+  NAME = "Robust Photo management tool"
+  VERSION = "0.1.5"
 
   class Photo < String
 
@@ -181,3 +183,5 @@ _EOT
 if ( __FILE__ == $0 )
   Photos::new(rhtml)
 end
+
+# vim: set ts=2 sw=2 expandtab:

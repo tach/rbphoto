@@ -1,3 +1,11 @@
+rbphoto (0.1.5) unstable; urgency=low
+
+  * Use rbphoto.rb on some commands
+  * Install rbphoto.rb to Ruby libdir
+  * Apply new standard version: 3.8.0
+
+ -- Taku YASUI <tach@debian.or.jp>  Sun, 03 Aug 2008 21:46:58 +0900
+
 rbphoto (0.1.4) unstable; urgency=low
 
   * Use "fileutils" instead of "ftools"
