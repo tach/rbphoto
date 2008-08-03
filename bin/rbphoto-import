@@ -38,17 +38,17 @@ class RbPhoto
   class Args < Hash
     def initialize
       parser = GetoptLong.new(
-        ['--datedir',         '-D',        GetoptLong::NO_ARGUMENT],
-        ['--force',           '-f',        GetoptLong::NO_ARGUMENT],
-        ['--no-gui',          '-G',        GetoptLong::NO_ARGUMENT],
-        ['--help',            '-h',        GetoptLong::NO_ARGUMENT],
-        ['--with-movie',      '-M',        GetoptLong::NO_ARGUMENT],
-        ['--move',                  '-m',	GetoptLong::NO_ARGUMENT],
-        ['--without-rename',  '-N',        GetoptLong::NO_ARGUMENT],
-        ['--no-act',          '-n',        GetoptLong::NO_ARGUMENT],
-        ['--photographer',    '-p',        GetoptLong::REQUIRED_ARGUMENT],
+        ['--datedir',         '-D', GetoptLong::NO_ARGUMENT],
+        ['--force',           '-f', GetoptLong::NO_ARGUMENT],
+        ['--no-gui',          '-G', GetoptLong::NO_ARGUMENT],
+        ['--help',            '-h', GetoptLong::NO_ARGUMENT],
+        ['--with-movie',      '-M', GetoptLong::NO_ARGUMENT],
+        ['--move',            '-m',        GetoptLong::NO_ARGUMENT],
+        ['--without-rename',  '-N', GetoptLong::NO_ARGUMENT],
+        ['--no-act',          '-n', GetoptLong::NO_ARGUMENT],
+        ['--photographer',    '-p', GetoptLong::REQUIRED_ARGUMENT],
         ['--version',         '-V', GetoptLong::NO_ARGUMENT],
-        ['--verbose',         '-v',        GetoptLong::NO_ARGUMENT])
+        ['--verbose',         '-v', GetoptLong::NO_ARGUMENT])
       begin
         parser.each do |name, arg|
     arg = true if (arg == "")
