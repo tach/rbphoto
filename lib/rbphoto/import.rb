@@ -35,31 +35,6 @@ class Exif
 end
 
 class RbPhoto
-  class Args < Hash
-    def initialize
-      parser = GetoptLong.new(
-        ['--datedir',         '-D', GetoptLong::NO_ARGUMENT],
-        ['--force',           '-f', GetoptLong::NO_ARGUMENT],
-        ['--no-gui',          '-G', GetoptLong::NO_ARGUMENT],
-        ['--help',            '-h', GetoptLong::NO_ARGUMENT],
-        ['--with-movie',      '-M', GetoptLong::NO_ARGUMENT],
-        ['--move',            '-m', GetoptLong::NO_ARGUMENT],
-        ['--without-rename',  '-N', GetoptLong::NO_ARGUMENT],
-        ['--no-act',          '-n', GetoptLong::NO_ARGUMENT],
-        ['--photographer',    '-p', GetoptLong::REQUIRED_ARGUMENT],
-        ['--version',         '-V', GetoptLong::NO_ARGUMENT],
-        ['--verbose',         '-v', GetoptLong::NO_ARGUMENT])
-      begin
-        parser.each do |name, arg|
-          arg = true if (arg == "")
-          self[name.sub(/^--/, '').gsub(/-/, '_').downcase] = arg
-        end
-      rescue
-        self['help'] = true
-      end
-    end
-  end
-
   class Import
     include GetText
     bindtextdomain("rbphoto")
@@ -197,6 +172,33 @@ Copyright (C) Taku YASUI <tach@debian.or.jp>
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 _EOT
+    end
+
+    class Options
+      def initialize
+        parser = GetoptLong.new(
+          ['--datedir',         '-D', GetoptLong::NO_ARGUMENT],
+          ['--force',           '-f', GetoptLong::NO_ARGUMENT],
+          ['--no-gui',          '-G', GetoptLong::NO_ARGUMENT],
+          ['--help',            '-h', GetoptLong::NO_ARGUMENT],
+          ['--with-movie',      '-M', GetoptLong::NO_ARGUMENT],
+          ['--move',            '-m', GetoptLong::NO_ARGUMENT],
+          ['--without-rename',  '-N', GetoptLong::NO_ARGUMENT],
+          ['--no-act',          '-n', GetoptLong::NO_ARGUMENT],
+          ['--photographer',    '-p', GetoptLong::REQUIRED_ARGUMENT],
+          ['--version',         '-V', GetoptLong::NO_ARGUMENT],
+          ['--verbose',         '-v', GetoptLong::NO_ARGUMENT])
+        begin
+          parser.each do |name, arg|
+            arg = true if (arg == "")
+            name = name.sub(/^--/, '').gsub(/-/, '_').downcase
+            instance_variable_set("@#{name}", arg)
+          end
+        rescue
+          @help = true
+        end
+      end
+      attr_accessor :datedir :force :no_gui :help :with_movie :move :without_rename :no_act :photographer :version :verbose
     end
   end
 end

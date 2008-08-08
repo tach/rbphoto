@@ -5,6 +5,7 @@ include /usr/share/cdbs/1/rules/debhelper.mk
 RUBYLIBDIR = $(shell ruby -rrbconfig -e "puts RbConfig::CONFIG['rubylibdir']")
 
 install/rbphoto::
-	mkdir -p $(DEB_DESTDIR)/$(RUBYLIBDIR)
+	mkdir -p $(DEB_DESTDIR)/$(RUBYLIBDIR)/rbphoto
 	install -m 755 bin/* $(DEB_DESTDIR)/usr/bin/
 	install -m 755 lib/rbphoto.rb $(DEB_DESTDIR)/$(RUBYLIBDIR)
+	install -m 755 lib/rbphoto/import.rb $(DEB_DESTDIR)/$(RUBYLIBDIR)/rbphoto
