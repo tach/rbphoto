@@ -39,21 +39,21 @@ class RbPhoto
     include GetText
     bindtextdomain("rbphoto")
 
-    def initialize(args)
-      @args = args
-      @fileopts = {:verbose => @args['verbose'], :noop => @args['no_act']}
+    def initialize(opt)
+      @opt = opt
+      @fileopts = { :verbose => @opt.verbose, :noop => @opt.no_act }
       @postfix = '-' + ENV['USER']
 
-      if ( @args['version'] )
+      if ( @opt.version )
         print self.version
         exit
-      elsif ( @args['help'] )
+      elsif ( @opt.help )
         print self.help
         exit
       end
       @dstdir = ARGV.pop
       @target = self.prepare_target(ARGV)
-      @postfix = "-#{@args['photographer']}" if ( @args['photographer'] )
+      @postfix = "-#{@opt.photographer}" if ( @opt.photographer )
       self.copy
     end
 
@@ -70,7 +70,7 @@ class RbPhoto
       args.each do |arg|
         if (File.directory?(arg))
           ret.concat(Dir.glob("#{arg}/*.{jpg,jpeg,JPG,JPEG}"))
-          ret.concat(Dir.glob("#{arg}/*.{avi,AVI,mpg,MPG}")) if ( @args['with_movie'] )
+          ret.concat(Dir.glob("#{arg}/*.{avi,AVI,mpg,MPG}")) if ( @opt.with_movie )
         else
           ret.push(arg)
         end
@@ -80,7 +80,7 @@ class RbPhoto
 
     def copy
       @target.each do |file|
-        target_file = @args['without_rename'] ? file : self.rename(file)
+        target_file = @opt.without_rename ? file : self.rename(file)
         target_dir = File.dirname(target_file)
 
         if ( ! File.directory?(target_dir) )
@@ -91,11 +91,11 @@ class RbPhoto
           end
         end
 
-        if ( @args['move'] )
+        if ( @opt.move )
           begin
             FileUtils.mv(file, target_file, @fileopts)
           rescue => e
-            if ( e.is_a?(Errno::EACCES) && @args['force'] && !File.writable?(target_file))
+            if ( e.is_a?(Errno::EACCES) && @opt.force && !File.writable?(target_file))
               FileUtils.chmod(0644, target_file, @fileopts)
               retry
             end
@@ -140,7 +140,7 @@ class RbPhoto
         show_error("Unsupported filetype: #{filename}")
         return @dstdir + "/#{filename}"
       end
-      datedir = '/' + time.strftime('%Y-%m-%d') if ( @args['datedir'] )
+      datedir = '/' + time.strftime('%Y-%m-%d') if ( @opt.datedir )
       return @dstdir + datedir + "/#{time.strftime('%Y%m%d-%H%M%S')}#{@postfix}.#{suffix}"
     end
  
@@ -198,7 +198,7 @@ _EOT
           @help = true
         end
       end
-      attr_accessor :datedir :force :no_gui :help :with_movie :move :without_rename :no_act :photographer :version :verbose
+      attr_accessor :datedir, :force, :no_gui, :help, :with_movie, :move, :without_rename, :no_act, :photographer, :version, :verbose
     end
   end
 end
