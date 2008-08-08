@@ -62,16 +62,16 @@ class RbPhoto
     end
 
     def prepare_target(args = ARGV)
-      ret = []
+      @target = []
       args.each do |arg|
         if (File.directory?(arg))
-          ret.concat(Dir.glob("#{arg}/*.{jpg,jpeg,JPG,JPEG}"))
-          ret.concat(Dir.glob("#{arg}/*.{avi,AVI,mpg,MPG}")) if ( @opt.with_movie )
+          @target.concat(Dir.glob("#{arg}/*.{jpg,jpeg,JPG,JPEG}"))
+          @target.concat(Dir.glob("#{arg}/*.{avi,AVI,mpg,MPG}")) if ( @opt.with_movie )
         else
-          ret.push(arg)
+          @target.push(arg)
         end
       end
-      return ret
+      return @target.size > 0 ? @target.size : false
     end
 
     def copy
