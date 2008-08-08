@@ -19,184 +19,116 @@
 #
 # $Id$
 
-require 'getoptlong'
-require 'fileutils'
-require 'exif'
-require 'gettext'
-require 'rbphoto'
-
-class Exif
-  def datetime
-    self.each_entry do |name, value|
-      return value if name.match(/^Date and Time/)
-    end
-  end
-end
+require 'rbphoto/import'
+require 'gtk2'
 
 class RbPhoto
-
-  class Args < Hash
-    def initialize
-      parser = GetoptLong.new(
-        ['--datedir',         '-D', GetoptLong::NO_ARGUMENT],
-        ['--force',           '-f', GetoptLong::NO_ARGUMENT],
-        ['--no-gui',          '-G', GetoptLong::NO_ARGUMENT],
-        ['--help',            '-h', GetoptLong::NO_ARGUMENT],
-        ['--with-movie',      '-M', GetoptLong::NO_ARGUMENT],
-        ['--move',            '-m', GetoptLong::NO_ARGUMENT],
-        ['--without-rename',  '-N', GetoptLong::NO_ARGUMENT],
-        ['--no-act',          '-n', GetoptLong::NO_ARGUMENT],
-        ['--photographer',    '-p', GetoptLong::REQUIRED_ARGUMENT],
-        ['--version',         '-V', GetoptLong::NO_ARGUMENT],
-        ['--verbose',         '-v', GetoptLong::NO_ARGUMENT])
-      begin
-        parser.each do |name, arg|
-          arg = true if (arg == "")
-          self[name.sub(/^--/, '').gsub(/-/, '_').downcase] = arg
-        end
-      rescue
-        self['help'] = true
-      end
-    end
-  end
-
   class Import
-    include GetText
-    bindtextdomain("rbphoto")
-
-    def initialize
-      @args = RbPhoto::Args.new
-      @fileopts = {:verbose => @args['verbose'], :noop => @args['no_act']}
-      @postfix = '-' + ENV['USER']
-      if ( @args['version'] )
-        print self.version
-        exit
-      elsif ( @args['help'] || ARGV.size < 2 )
-        print self.help
-        exit
-      end
-      @dstdir = ARGV.pop
-      @target = self.prepare_target(ARGV)
-      @postfix = "-#{@args['photographer']}" if ( @args['photographer'] )
-      self.copy
-    end
-
-    def prepare_target(args = ARGV)
-      ret = []
-      args.each do |arg|
-        if (File.directory?(arg))
-          ret.concat(Dir.glob("#{arg}/*.{jpg,jpeg,JPG,JPEG}"))
-          ret.concat(Dir.glob("#{arg}/*.{avi,AVI,mpg,MPG}")) if ( @args['with_movie'] )
-        else
-          ret.push(arg)
-        end
-      end
-      return ret
-    end
-
-    def copy
-      @target.each do |file|
-        if ( @args['without_rename'] )
-          target_file = file
-        else
-          target_file = self.rename(file)
-        end
-
-        target_dir = File.dirname(target_file)
-        if ( ! File.directory?(target_dir) )
-          begin
-            FileUtils.makedirs(target_dir, @fileopts)
-          rescue => e
-            STDERR.puts "ERROR: mkdir failed: #{e.to_s}"
-          end
-        end
-
-        if ( @args['move'] )
-          begin
-            FileUtils.mv(file, target_file, @fileopts)
-          rescue => e
-            if ( e.is_a?(Errno::EACCES) && @args['force'] && !File.writable?(target_file))
-              FileUtils.chmod(0644, target_file, @fileopts)
-              retry
-            end
-            STDERR.puts "ERROR: mv failed: #{e.to_s}"
-          end
-        else
-          begin
-            FileUtils.cp(file, target_file, @fileopts)
-          rescue => e
-            STDERR.puts "ERROR: cp failed: #{e.to_s}"
-          end
-        end
-        begin
-          FileUtils.chmod(0444, target_file, @fileopts)
-        rescue => e
-          STDERR.puts "ERROR: chmod failed: #{e.to_s}"
-        end
+    class Cui
+      def initialize(opt)
+        super(opt)
+        self.copy
       end
     end
 
-    def rename(filename)
-      datedir = ''
-      suffix = ''
-      time = Time.at(0)
-      case File.extname(filename)
-      when /^\.avi$/i
-        suffix = 'avi'
-        time = File.mtime(filename)
-      when /^\.mpe?g$/i
-        suffix = 'mpg'
-        time = File.mtime(filename)
-      when /^\.jpe?g$/i
-        suffix = 'jpg'
-        begin
-          exif = Exif.new(filename)
-          time = Time.local(*exif.datetime.split(/[:\s]/))
-        rescue
-          STDERR.print "Cannot read exif data correctly: #{filename}\n"
-          return @dstdir + "/#{File.basename(filename, '.*')}#{@postfix}.#{suffix}"
-        end
-      else
-        STDERR.print "Unsupported filetype: #{filename}\n"
-        return @dstdir + "/#{filename}"
+    class Gui < RbPhoto::Import
+      def initialize(opt)
+        super(opt)
+        window = self.main_window
+        window.show_all
+        Gtk.main
       end
-      datedir = '/' + time.strftime('%Y-%m-%d') if ( @args['datedir'] )
-      return @dstdir + datedir + "/#{time.strftime('%Y%m%d-%H%M%S')}#{@postfix}.#{suffix}"
-    end
- 
-    def help
-      return <<_EOT
-Usage: #{$0} [options] src_(dir|file)[s]... target_dir
-Copy photo image from src to target.  it renames photo file name
-not to duplicate by its exif data.
 
-Options:
-  -D, --datedir              copy/move photos with datedir
-  -f, --force                force to overwrite when move
-  -m, --move                 move photos instead of copy
-  -M, --with-movie           process not only images but also movies
-  -N, --without-rename       do not rename photo files
-  -p, --photographer=id      set photographer id (default: $USER)
-  -n, --no-act               do not copy/move only test
-  -h, --help                 show this help
-  -v, --verbose              make verbose output
-  -V, --version              show software version
-_EOT
-    end
+      def execute(w)
+        if (@executing)
+          @button_exec.label = _("Import")
+          push_status(_("Stop"))
+          show_log(_("Stopped by user"))
+          @executing = false
+          return
+        end
+        @executing = true
+        push_status(_("Importing: please wait ..."))
+        show_log(_("Start importing"))
+        @button_exec.label = _("Stop")
+      end
 
-    def version
-      return <<_EOT
-Robust Photo management tool (import) #{RbPhoto::VERSION}
+      def show_log(msg)
+        @log_text.buffer.insert(@log_text.buffer.end_iter, Time.now.strftime("%Y/%m/%d %H:%M:%S ") + msg + "\n")
+      end
 
-Copyright (C) Taku YASUI <tach@debian.or.jp>
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-_EOT
+      def push_status(msg)
+        @status_bar.push(@status_bar_context_id, msg)
+      end
+
+      def set_args(name, status)
+        @opt.__send__("#{name}=", status)
+        p @opt.__send__(name)
+      end
+
+      def main_window
+        window = Gtk::Window.new
+        window.title = "#{RbPhoto::NAME} #{RbPhoto::VERSION}"
+        window.set_default_size(400, -1)
+
+        # quit when closing window
+        window.signal_connect('delete_event') do
+          Gtk.main_quit
+          false
+        end
+
+        whole_box = Gtk::VBox.new(false, 0)
+
+        main_box = Gtk::VBox.new(false, 10)
+        button_box = Gtk::HBox.new(false, 10)
+
+        verbose_checkbox = Gtk::CheckButton.new(_("Show _verbose log"))
+        verbose_checkbox.active = true if ( @opt.verbose )
+        verbose_checkbox.signal_connect( "toggled" ) { |w| set_args('verbose', w.active? ? true : false) }
+        button_box.pack_start(verbose_checkbox, false, true, 0)
+
+        no_act_checkbox = Gtk::CheckButton.new(_("Trial run with _no changes made"))
+        no_act_checkbox.active = true if ( @opt.no_act )
+        no_act_checkbox.signal_connect( "toggled" ) { |w| set_args('no_act', w.active? ? true : false) }
+        button_box.pack_start(no_act_checkbox, false, true, 0)
+
+        @button_exec = Gtk::Button.new(_("Execute"))
+        @button_exec.signal_connect( "clicked" ) { |w| execute(w) }
+        button_box.pack_end(@button_exec, false, true, 0)
+
+        main_box.pack_end(button_box, false, true, 0)
+
+        # show status bar
+        @status_bar = Gtk::Statusbar.new
+        @status_bar_context_id = @status_bar.get_context_id("main")
+
+        # show log box
+        log_box = Gtk::ScrolledWindow.new(hadjustment = nil, vadjustment = nil)
+        log_box.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_ALWAYS)
+        @log_text = Gtk::TextView.new
+        @log_text.editable = false
+        log_box.add(@log_text)
+
+        window.add(whole_box)
+        whole_box.pack_start(main_box, false, true, 5)
+        whole_box.pack_start(log_box, true, true, 0)
+        whole_box.pack_end(@status_bar, false, true, 0)
+
+        return window
+      end
     end
   end
-
 end
 
-RbPhoto::Import.new
+def main
+  opt = RbPhoto::Import::Options.new
+  if ( opt.no_gui )
+    RbPhoto::Import::Cui.new(opt)
+  else
+    RbPhoto::Import::Gui.new(opt)
+  end
+end
+
+main if ( __FILE__ == $0 )
 
 # vim: set ts=2 sw=2 expandtab:
