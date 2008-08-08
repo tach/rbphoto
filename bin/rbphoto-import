@@ -34,22 +34,25 @@ class RbPhoto
         end
 
         @dstdir = ARGV.pop
-        @target = self.prepare_target(ARGV)
-        @postfix = "-#{@opt.photographer}" if ( @opt.photographer )
+        prepare_target(ARGV)
 
-        self.copy
+        execute
       end
     end
 
     class Gui < RbPhoto::Import
       def initialize(opt)
         super(opt)
-        window = self.main_window
+
+        @dstdir = ARGV.pop if ( ARGV.size == 2 )
+        @src = ARGV.pop if ( ARGV.size == 1 )
+        window = main_window
         window.show_all
         Gtk.main
       end
 
       def execute(w)
+        prepare_target([@src])
         if (@executing)
           @button_exec.label = _("Import")
           push_status(_("Stop"))
@@ -57,10 +60,22 @@ class RbPhoto
           @executing = false
           return
         end
+
+        # execution
         @executing = true
         push_status(_("Importing: please wait ..."))
         show_log(_("Start importing"))
         @button_exec.label = _("Stop")
+        FileUtils.instance_variable_set('@fileutils_output', @log_text)
+        count = super()
+        FileUtils.instance_variable_set('@fileutils_output', nil)
+
+        # finish execution
+        show_log(_("Importing finished"))
+        show_log(_("%s file(s) have been imported") % count)
+        @button_exec.label = _("Import")
+        push_status(_("Importing finished: %s file(s) have been imported") % count)
+        @executing = false
       end
 
       def show_log(msg)
@@ -69,11 +84,6 @@ class RbPhoto
 
       def push_status(msg)
         @status_bar.push(@status_bar_context_id, msg)
-      end
-
-      def set_args(name, status)
-        @opt.__send__("#{name}=", status)
-        p @opt.__send__(name)
       end
 
       def main_window
@@ -88,18 +98,73 @@ class RbPhoto
         end
 
         whole_box = Gtk::VBox.new(false, 0)
+        main_box_h = Gtk::HBox.new(false, 0)
 
         main_box = Gtk::VBox.new(false, 10)
         button_box = Gtk::HBox.new(false, 10)
 
+        config_title_label = Gtk::Label.new
+        config_title_label.set_markup("<b>" + _("Import your photos and movies to this computer") + "</b>")
+        main_box.pack_start(config_title_label, false, true, 0)
+
+        from_box = Gtk::HBox.new(false, 10)
+        from_label = Gtk::Label.new(_("Import from"))
+        from_entry = Gtk::Entry.new
+        from_entry.width_chars = 20
+        from_entry.signal_connect("changed") { |w| @src = w.text }
+        from_entry.text = @src
+        from_box.pack_start(from_label, false, false, 0)
+        from_box.pack_start(from_entry, false, false, 0)
+        main_box.pack_start(from_box, false, true, 0)
+
+        to_box = Gtk::HBox.new(false, 10)
+        to_label = Gtk::Label.new(_("Import into"))
+        to_entry = Gtk::Entry.new
+        to_entry.width_chars = 20
+        to_entry.signal_connect("changed") { |w| @dstdir = w.text }
+        to_entry.text = @dstdir
+        to_box.pack_start(to_label, false, false, 0)
+        to_box.pack_start(to_entry, false, false, 0)
+        main_box.pack_start(to_box, false, true, 0)
+
+        user_textentry_box = Gtk::HBox.new(false, 10)
+        user_textentry_label = Gtk::Label.new(_("Photographer Name (append to filename)"))
+        user_textentry = Gtk::Entry.new
+        user_textentry.width_chars = 20
+        user_textentry.signal_connect("changed") { |w| @opt.photographer = w.text }
+        user_textentry.text = @opt.photographer
+        user_textentry_box.pack_start(user_textentry_label, false, false, 0)
+        user_textentry_box.pack_start(user_textentry, false, false, 0)
+        main_box.pack_start(user_textentry_box, false, true, 0)
+
+        datedir_checkbox = Gtk::CheckButton.new(_("Import under the date name (YYYY-MM-DD) directory"))
+        datedir_checkbox.active = true if ( @opt.datedir )
+        datedir_checkbox.signal_connect("toggled") { |w| @opt.datedir = w.active? }
+        main_box.pack_start(datedir_checkbox, false, true, 0)
+
+        move_checkbox = Gtk::CheckButton.new(_("Move files instead of copy"))
+        move_checkbox.active = true if ( @opt.move )
+        move_checkbox.signal_connect("toggled") { |w| @opt.move = w.active? }
+        main_box.pack_start(move_checkbox, false, true, 0)
+
+        movie_checkbox = Gtk::CheckButton.new(_("Import movies at the same time"))
+        movie_checkbox.active = true if ( @opt.with_movie )
+        movie_checkbox.signal_connect("toggled") { |w| @opt.with_movie = w.active? }
+        main_box.pack_start(movie_checkbox, false, true, 0)
+
+        rename_checkbox = Gtk::CheckButton.new(_("Do not rename files"))
+        rename_checkbox.active = true if ( @opt.without_rename )
+        rename_checkbox.signal_connect("toggled") { |w| @opt.without_rename = w.active? }
+        main_box.pack_start(rename_checkbox, false, true, 0)
+ 
         verbose_checkbox = Gtk::CheckButton.new(_("Show _verbose log"))
         verbose_checkbox.active = true if ( @opt.verbose )
-        verbose_checkbox.signal_connect( "toggled" ) { |w| set_args('verbose', w.active? ? true : false) }
+        verbose_checkbox.signal_connect("toggled") { |w| @opt.verbose = w.active? }
         button_box.pack_start(verbose_checkbox, false, true, 0)
 
         no_act_checkbox = Gtk::CheckButton.new(_("Trial run with _no changes made"))
         no_act_checkbox.active = true if ( @opt.no_act )
-        no_act_checkbox.signal_connect( "toggled" ) { |w| set_args('no_act', w.active? ? true : false) }
+        no_act_checkbox.signal_connect("toggled") { |w| @opt.no_act = w.active? }
         button_box.pack_start(no_act_checkbox, false, true, 0)
 
         @button_exec = Gtk::Button.new(_("Execute"))
@@ -118,9 +183,16 @@ class RbPhoto
         @log_text = Gtk::TextView.new
         @log_text.editable = false
         log_box.add(@log_text)
+        class << @log_text
+          def puts(str)
+            self.buffer.insert(self.buffer.end_iter, str + "\n")
+          end
+        end
+
+        main_box_h.pack_start(main_box, true, true, 15)
 
         window.add(whole_box)
-        whole_box.pack_start(main_box, false, true, 5)
+        whole_box.pack_start(main_box_h, false, true, 15)
         whole_box.pack_start(log_box, true, true, 0)
         whole_box.pack_end(@status_bar, false, true, 0)
 
@@ -132,7 +204,7 @@ end
 
 def main
   opt = RbPhoto::Import::Options.new
-  if ( opt.no_gui )
+  if ( opt.no_gui || ARGV.size >= 3 )
     RbPhoto::Import::Cui.new(opt)
   else
     RbPhoto::Import::Gui.new(opt)

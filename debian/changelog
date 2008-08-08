@@ -1,3 +1,10 @@
+rbphoto (0.2.0) unstable; urgency=low
+
+  * Add GUI using GTK2
+    - Adhoc and very early alpha version
+
+ -- Taku YASUI <tach@debian.or.jp>  Sat, 09 Aug 2008 07:12:22 +0900
+
 rbphoto (0.1.5) unstable; urgency=low
 
   * Use rbphoto.rb on some commands
