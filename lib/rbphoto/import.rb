@@ -170,7 +170,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 _EOT
     end
 
-    class Options
+    class Options < Hash
       def initialize
         parser = GetoptLong.new(
           ['--datedir',         '-D', GetoptLong::NO_ARGUMENT],
@@ -187,14 +187,20 @@ _EOT
         begin
           parser.each do |name, arg|
             arg = true if (arg == "")
-            name = name.sub(/^--/, '').gsub(/-/, '_').downcase
-            instance_variable_set("@#{name}", arg)
+            self[name.sub(/^--/, '').gsub(/-/, '_').downcase] = arg
           end
         rescue
-          @help = true
+          self['help'] = true
         end
       end
-      attr_accessor :datedir, :force, :no_gui, :help, :with_movie, :move, :without_rename, :no_act, :photographer, :version, :verbose
+
+      def method_missing(name, arg=nil)
+        if ( name.to_s.match(/^(.+)=$/) )
+          self[$1] = arg
+        else
+          return self[name.to_s]
+        end
+      end
     end
   end
 end
