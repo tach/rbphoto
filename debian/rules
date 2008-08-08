@@ -7,4 +7,4 @@ RUBYLIBDIR = $(shell ruby -rrbconfig -e "puts RbConfig::CONFIG['rubylibdir']")
 install/rbphoto::
 	mkdir -p $(DEB_DESTDIR)/$(RUBYLIBDIR)
 	install -m 755 bin/* $(DEB_DESTDIR)/usr/bin/
-	install -m 755 rbphoto.rb $(DEB_DESTDIR)/$(RUBYLIBDIR)
+	install -m 755 lib/rbphoto.rb $(DEB_DESTDIR)/$(RUBYLIBDIR)
