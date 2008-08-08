@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2008-08-03 23:58+0900\n"
-"PO-Revision-Date: 2008-08-03 23:58+0900\n"
+"POT-Creation-Date: 2008-08-09 07:13+0900\n"
+"PO-Revision-Date: 2008-08-09 07:13+0900\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,5 +16,78 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-msgid "copy/move photos with datedir"
+#: bin/rbphoto-import:57 bin/rbphoto-import:76
+msgid "Import"
+msgstr ""
+
+#: bin/rbphoto-import:58 bin/rbphoto-import:68
+msgid "Stop"
+msgstr ""
+
+#: bin/rbphoto-import:59
+msgid "Stopped by user"
+msgstr ""
+
+#: bin/rbphoto-import:66
+msgid "Importing: please wait ..."
+msgstr ""
+
+#: bin/rbphoto-import:67
+msgid "Start importing"
+msgstr ""
+
+#: bin/rbphoto-import:74
+msgid "Importing finished"
+msgstr ""
+
+#: bin/rbphoto-import:75
+msgid "%s file(s) have been imported"
+msgstr ""
+
+#: bin/rbphoto-import:77
+msgid "Importing finished: %s file(s) have been imported"
+msgstr ""
+
+#: bin/rbphoto-import:107
+msgid "Import your photos and movies to this computer"
+msgstr ""
+
+#: bin/rbphoto-import:111
+msgid "Import from"
+msgstr ""
+
+#: bin/rbphoto-import:121
+msgid "Import into"
+msgstr ""
+
+#: bin/rbphoto-import:131
+msgid "Photographer Name (append to filename)"
+msgstr ""
+
+#: bin/rbphoto-import:140
+msgid "Import under the date name (YYYY-MM-DD) directory"
+msgstr ""
+
+#: bin/rbphoto-import:145
+msgid "Move files instead of copy"
+msgstr ""
+
+#: bin/rbphoto-import:150
+msgid "Import movies at the same time"
+msgstr ""
+
+#: bin/rbphoto-import:155
+msgid "Do not rename files"
+msgstr ""
+
+#: bin/rbphoto-import:160
+msgid "Show _verbose log"
+msgstr ""
+
+#: bin/rbphoto-import:165
+msgid "Trial run with _no changes made"
+msgstr ""
+
+#: bin/rbphoto-import:170
+msgid "Execute"
 msgstr ""
