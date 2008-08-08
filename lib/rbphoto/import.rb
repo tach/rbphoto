@@ -21,6 +21,7 @@
 
 require 'getoptlong'
 require 'fileutils'
+require 'find'
 require 'exif'
 require 'gettext'
 require 'gtk2'
@@ -41,8 +42,6 @@ class RbPhoto
 
     def initialize(opt)
       @opt = opt
-      @fileopts = { :verbose => @opt.verbose, :noop => @opt.no_act }
-      @postfix = '-' + ENV['USER']
 
       if ( @opt.version )
         print self.version
@@ -65,8 +64,13 @@ class RbPhoto
       @target = []
       args.each do |arg|
         if (File.directory?(arg))
-          @target.concat(Dir.glob("#{arg}/*.{jpg,jpeg,JPG,JPEG}"))
-          @target.concat(Dir.glob("#{arg}/*.{avi,AVI,mpg,MPG}")) if ( @opt.with_movie )
+          Find.find(arg) do |f|
+            if ( f.match(/\.jpe?g$/i) )
+              @target.push(f)
+            elsif ( f.match(/\.(?:avi|mpe?g)$/i) && @opt.with_movie )
+              @target.push(f)
+            end
+          end
         else
           @target.push(arg)
         end
@@ -74,7 +78,10 @@ class RbPhoto
       return @target.size > 0 ? @target.size : false
     end
 
-    def copy
+    def execute
+      @fileopts = { :verbose => @opt.verbose, :noop => @opt.no_act }
+      @postfix = '-' + @opt.photographer
+      count = 0
       @target.each do |file|
         target_file = @opt.without_rename ? file : self.rename(file)
         target_dir = File.dirname(target_file)
@@ -90,6 +97,7 @@ class RbPhoto
         if ( @opt.move )
           begin
             FileUtils.mv(file, target_file, @fileopts)
+            count += 1
           rescue => e
             if ( e.is_a?(Errno::EACCES) && @opt.force && !File.writable?(target_file))
               FileUtils.chmod(0644, target_file, @fileopts)
@@ -100,6 +108,7 @@ class RbPhoto
         else
           begin
             FileUtils.cp(file, target_file, @fileopts)
+            count += 1
           rescue => e
             show_error("ERROR: cp failed: #{e.to_s}")
           end
@@ -110,6 +119,7 @@ class RbPhoto
           show_error("ERROR: chmod failed: #{e.to_s}")
         end
       end
+      return count
     end
 
     def rename(filename)
@@ -189,6 +199,7 @@ _EOT
             arg = true if (arg == "")
             self[name.sub(/^--/, '').gsub(/-/, '_').downcase] = arg
           end
+          self['photographer'] ||= ENV['USER']
         rescue
           self['help'] = true
         end
