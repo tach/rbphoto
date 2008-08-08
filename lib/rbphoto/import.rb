@@ -51,10 +51,6 @@ class RbPhoto
         print self.help
         exit
       end
-      @dstdir = ARGV.pop
-      @target = self.prepare_target(ARGV)
-      @postfix = "-#{@opt.photographer}" if ( @opt.photographer )
-      self.copy
     end
 
     def show_error(str)

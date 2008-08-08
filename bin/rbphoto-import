@@ -24,9 +24,19 @@ require 'gtk2'
 
 class RbPhoto
   class Import
-    class Cui
+    class Cui < RbPhoto::Import
       def initialize(opt)
         super(opt)
+
+        if ( ARGV.size < 2 )
+          print self.help
+          exit
+        end
+
+        @dstdir = ARGV.pop
+        @target = self.prepare_target(ARGV)
+        @postfix = "-#{@opt.photographer}" if ( @opt.photographer )
+
         self.copy
       end
     end
