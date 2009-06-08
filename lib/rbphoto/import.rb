@@ -46,6 +46,7 @@ Copy photo image from src to target.  it renames photo file name
 not to duplicate by its exif data.
 
 Options:
+  -a, --all                  set all recommended options; same as -DmM
   -D, --datedir              copy/move photos with datedir
   -f, --force                force to overwrite when move
   -G, --no-gui               disable GTK2+ graphical interface
@@ -183,6 +184,7 @@ _EOT
     class Options < Hash
       def initialize
         parser = GetoptLong.new(
+          ['--all',             '-a', GetoptLong::NO_ARGUMENT],
           ['--datedir',         '-D', GetoptLong::NO_ARGUMENT],
           ['--force',           '-f', GetoptLong::NO_ARGUMENT],
           ['--no-gui',          '-G', GetoptLong::NO_ARGUMENT],
@@ -197,7 +199,14 @@ _EOT
         begin
           parser.each do |name, arg|
             arg = true if (arg == "")
-            self[name.sub(/^--/, '').gsub(/-/, '_').downcase] = arg
+            case arg
+            when '--all'
+              self['datedir'] = true
+              self['move'] = true
+              self['with_movie'] = true
+            else
+              self[name.sub(/^--/, '').gsub(/-/, '_').downcase] = arg
+            end
           end
           self['photographer'] ||= ENV['USER']
         rescue
