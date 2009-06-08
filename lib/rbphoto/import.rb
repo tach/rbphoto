@@ -24,7 +24,6 @@ require 'fileutils'
 require 'find'
 require 'exif'
 require 'gettext'
-require 'gtk2'
 require 'rbphoto'
 
 class Exif
@@ -39,17 +38,40 @@ class RbPhoto
   class Import
     include GetText
     bindtextdomain("rbphoto")
+ 
+    def self.help
+      return <<_EOT
+Usage: #{$0} [options] src_(dir|file)[s]... target_dir
+Copy photo image from src to target.  it renames photo file name
+not to duplicate by its exif data.
+
+Options:
+  -D, --datedir              copy/move photos with datedir
+  -f, --force                force to overwrite when move
+  -G, --no-gui               disable GTK2+ graphical interface
+  -m, --move                 move photos instead of copy
+  -M, --with-movie           process not only images but also movies
+  -N, --without-rename       do not rename photo files
+  -p, --photographer=id      set photographer id (default: $USER)
+  -n, --no-act               do not copy/move only test
+  -h, --help                 show this help
+  -v, --verbose              make verbose output
+  -V, --version              show software version
+_EOT
+    end
+
+    def self.version
+      return <<_EOT
+Robust Photo management tool (import) #{RbPhoto::VERSION}
+
+Copyright (C) Taku YASUI <tach@debian.or.jp>
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+_EOT
+    end
 
     def initialize(opt)
       @opt = opt
-
-      if ( @opt.version )
-        print self.version
-        exit
-      elsif ( @opt.help )
-        print self.help
-        exit
-      end
     end
 
     def show_error(str)
@@ -149,35 +171,13 @@ class RbPhoto
       datedir = '/' + time.strftime('%Y-%m-%d') if ( @opt.datedir )
       return @dstdir + datedir + "/#{time.strftime('%Y%m%d-%H%M%S')}#{@postfix}.#{suffix}"
     end
- 
-    def help
-      return <<_EOT
-Usage: #{$0} [options] src_(dir|file)[s]... target_dir
-Copy photo image from src to target.  it renames photo file name
-not to duplicate by its exif data.
 
-Options:
-  -D, --datedir              copy/move photos with datedir
-  -f, --force                force to overwrite when move
-  -m, --move                 move photos instead of copy
-  -M, --with-movie           process not only images but also movies
-  -N, --without-rename       do not rename photo files
-  -p, --photographer=id      set photographer id (default: $USER)
-  -n, --no-act               do not copy/move only test
-  -h, --help                 show this help
-  -v, --verbose              make verbose output
-  -V, --version              show software version
-_EOT
+    def help
+      self.class.help
     end
 
     def version
-      return <<_EOT
-Robust Photo management tool (import) #{RbPhoto::VERSION}
-
-Copyright (C) Taku YASUI <tach@debian.or.jp>
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-_EOT
+      self.class.version
     end
 
     class Options < Hash

@@ -20,7 +20,6 @@
 # $Id$
 
 require 'rbphoto/import'
-require 'gtk2'
 
 class RbPhoto
   class Import
@@ -204,9 +203,18 @@ end
 
 def main
   opt = RbPhoto::Import::Options.new
+  if (opt.help)
+    print RbPhoto::Import.help
+    exit
+  elsif (opt.version)
+    print RbPhoto::Import.version
+    exit
+  end
+
   if ( opt.no_gui || ARGV.size >= 3 )
     RbPhoto::Import::Cui.new(opt)
   else
+    require 'gtk2'
     RbPhoto::Import::Gui.new(opt)
   end
 end
