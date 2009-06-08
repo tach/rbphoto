@@ -1,3 +1,9 @@
+rbphoto (0.2.1) unstable; urgency=low
+
+  * Change maintainer email address
+
+ -- Taku YASUI <tach@debian.org>  Mon, 08 Jun 2009 22:24:58 +0900
+
 rbphoto (0.2.0) unstable; urgency=low
 
   * Add GUI using GTK2
