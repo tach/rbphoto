@@ -200,7 +200,7 @@ _EOT
         begin
           parser.each do |name, arg|
             arg = true if (arg == "")
-            case arg
+            case name
             when '--all'
               self['datedir'] = true
               self['move'] = true
