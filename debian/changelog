@@ -4,8 +4,9 @@ rbphoto (0.2.1) unstable; urgency=low
   * Change 'help' and 'version' instance method to class method on
     RbPhoto::Import class
   * Change load timing for gtk library
+  * Check GUI availability and fallback to CUI mode
 
- -- Taku YASUI <tach@debian.org>  Mon, 08 Jun 2009 22:27:19 +0900
+ -- Taku YASUI <tach@debian.org>  Mon, 08 Jun 2009 22:38:28 +0900
 
 rbphoto (0.2.0) unstable; urgency=low
 

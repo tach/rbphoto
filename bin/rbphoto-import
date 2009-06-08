@@ -211,10 +211,16 @@ def main
     exit
   end
 
+  # load and check GUI availability
+  begin
+    require 'gtk2'
+  rescue
+    opt.no_gui = true
+  end
+
   if ( opt.no_gui || ARGV.size >= 3 )
     RbPhoto::Import::Cui.new(opt)
   else
-    require 'gtk2'
     RbPhoto::Import::Gui.new(opt)
   end
 end
