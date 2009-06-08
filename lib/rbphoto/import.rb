@@ -1,7 +1,8 @@
 #!/usr/bin/ruby
 #
 # RbPhoto library for Importing
-# Copyright (C) 2008 Taku YASUI <tach@debian.or.jp>
+#
+# Copyright (C) 2008-2009 Taku YASUI <tach@debian.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
