@@ -29,9 +29,12 @@ require 'rbphoto'
 
 class Exif
   def datetime
-    self.each_entry do |name, value|
-      return value if name.match(/^Date and Time/)
+    [' (original)', ' (digitized)', ''].each do |suf|
+      val = self['Date and Time' + suf]
+      val && val.match(/^\d+:\d+:\d+ \d+:\d+:\d+$/) or next
+      return val
     end
+    return false
   end
 end
 
